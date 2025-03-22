@@ -59,7 +59,7 @@ const Hero = () => {
           </h1>
           
           <p className="max-w-3xl text-lg md:text-xl mb-8 md:mb-12 text-slate-50 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 py-4 px-6 md:px-8 rounded-lg">
-            Take your trading to the next level with funding of up to $200,000. Whether you specialize in Forex trading or Deriv synthetic indices, trade without financial risk and keep up to 80% of your profits.
+            Take your trading to the next level and unlock up to $200k Whether you specialize in Forex trading or Deriv synthetic indices, trade without financial risk and keep up to 80% of your profits.
           </p>
           
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6 w-full sm:w-auto">

@@ -122,17 +122,11 @@ const Footer = () => {
           <p>Registered Office: Barton Court, 56 High Street, Canterbury, Kent, UK, CT1 2AZ</p>
           
           <div className="flex flex-wrap gap-4 pt-4">
-            <Link href="/terms" className="hover:text-blue-500 transition-colors">
+            <Link href="/faq" className="hover:text-blue-500 transition-colors">
               Terms & Conditions
             </Link>
             <span className="text-gray-500">|</span>
-            <Link href="/cookies" className="hover:text-blue-500 transition-colors">
-              Cookie Policy
-            </Link>
             <span className="text-gray-500">|</span>
-            <Link href="/privacy" className="hover:text-blue-500 transition-colors">
-              Privacy Policy
-            </Link>
             <span className="text-gray-500">|</span>
             <Link href="/refunds" className="hover:text-blue-500 transition-colors">
               Refunds

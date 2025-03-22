@@ -1,4 +1,5 @@
 import { CreditCard, DollarSign, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 
 export default function EquityEdgePayout() {
   return (
@@ -49,9 +50,9 @@ export default function EquityEdgePayout() {
       <div className="mt-16 rounded-2xl overflow-hidden">
         <div className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 p-8 text-white text-center">
           <h2 className="text-2xl font-bold mb-4">Ready to Maximize Your Trading Profits?</h2>
-          <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
+          <Link href={"/pricing"} className="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium hover:bg-blue-50 transition-colors">
             Get Started Today
-          </button>
+          </Link>
         </div>
       </div>
     </div>

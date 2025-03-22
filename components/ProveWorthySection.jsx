@@ -25,7 +25,7 @@ const ProveWorthySection = () => {
         {/* CTA Button */}
         <div className="flex justify-center">
           <Link
-            href={"/register"} 
+            href={"/pricing"} 
             className="px-8 py-4 text-lg font-medium text-white bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full hover:bg-blue-600 transition-colors shadow-lg"
             onClick={() => console.log('Register button clicked')}
           >

@@ -2,48 +2,55 @@
 
 import { ContactForm, CustomGetFundedBtn, EquityEdgePayout, Footer, FundingOptionsSection, GetFunded, Navbar, ProveWorthySection, SubHeroSection, TelegramCommunityBenefits, TradeEliteBanner, TradingPlanSelector } from '@/constants'
 import Link from 'next/link'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const Hero = () => {
   const [showBanner, setShowBanner] = useState(true);
-  // Calculate banner height for spacer (adjust value based on actual banner height)
-  const bannerHeight = showBanner ? "h-8" : "h-0"; // Typical banner height
+
+  useEffect(() => {
+    // Show development notice toast when component mounts
+    if (showBanner) {
+      const toastId = toast.info(
+        <div className="flex flex-col">
+          <div className="font-medium mb-1">Website Under Development</div>
+          <div className="text-sm">This site is currently in progress. Some features may be incomplete.</div>
+        </div>,
+        {
+          position: "top-center",
+          autoClose: false,
+          hideProgressBar: false,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          className: "bg-gradient-to-r from-blue-800 to-blue-600 text-white",
+          icon: "🚧",
+          onClose: () => setShowBanner(false)
+        }
+      );
+    }
+  }, []);
 
   return (
     <main className="bg relative">
-      {/* Development Banner */}
-      {showBanner && (
-        <div 
-          id="dev-banner"
-          className="w-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 text-white py-2 px-3 shadow-md fixed top-0 left-0 right-0 z-30"
-          style={{ paddingTop: "env(safe-area-inset-top, 0)" }}
-        >
-          <div className="container mx-auto flex items-center justify-between">
-            <div className="flex-1 text-center">
-              <p className="font-medium text-xs sm:text-sm md:text-base">
-                🚧 Website under development. Feel free to explore! 🚧
-              </p>
-            </div>
-            <button 
-              onClick={() => setShowBanner(false)} 
-              className="ml-2 bg-white bg-opacity-20 rounded-full p-1 hover:bg-opacity-30 transition-all flex-shrink-0"
-              aria-label="Close banner"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
+      {/* React-Toastify Container */}
+      <ToastContainer 
+        position="top-center"
+        autoClose={false}
+        newestOnTop
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+      />
       
-      {/* Navbar with adjusted top position */}
-      <div className={`${showBanner ? "top-8" : "top-0"} fixed left-0 right-0 z-20 transition-all duration-300`}>
-        <Navbar />
-      </div>
+      {/* Navbar */}
+      <Navbar />
       
-      {/* Spacer div to account for fixed elements */}
-      <div className={`${bannerHeight} h-16 md:h-24`}></div>
+      {/* Spacer div for fixed navbar */}
+      <div className="h-16 md:h-24"></div>
       
       <div className="bg pt-12 pb-12 md:pt-16 px-4 md:px-8">
         <div className="flex flex-col items-center justify-center">

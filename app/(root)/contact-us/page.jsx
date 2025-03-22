@@ -68,7 +68,7 @@ export default function ContactPage() {
             <h3 className="text-xl font-bold mb-2">Email Us</h3>
             <p className="text-gray-600 mb-4">We'll respond within 1 hours</p>
             <a href="mailto:support@fortuneedgefunding.com" className="text-blue-600 hover:underline">
-              support@fortuneedgefunding.com
+              support@myfortunesedge.com
             </a>
           </div>
 
@@ -76,10 +76,10 @@ export default function ContactPage() {
             <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full flex items-center justify-center mb-4">
               <FaWhatsapp className="text-white" size={24} />
             </div>
-            <h3 className="text-xl font-bold mb-2">Call Us</h3>
+            <h3 className="text-xl font-bold mb-2">WhatsApp Us</h3>
             <p className="text-gray-600 mb-4">Mon-Fri, 9am-5pm (GMT)</p>
             <a href="tel:+441234567890" className="text-blue-600 hover:underline">
-              +44 123 456 7890
+              {/* +44 123 456 7890 */}
             </a>
           </div>
 

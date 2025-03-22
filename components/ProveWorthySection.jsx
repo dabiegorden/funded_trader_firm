@@ -18,7 +18,7 @@ const ProveWorthySection = () => {
         {/* Description text */}
         <div className="max-w-4xl mx-auto text-center mb-12">
           <p className="text-lg md:text-xl text-gray-700 leading-relaxed">
-            Show us your trading skills and discipline by taking on our 1 Step Fortune or Instant Funding challenges. Compete against fellow traders, hit your profit targets, and unlock funding up to $200k. Are you ready to prove you have what it takes to succeed?
+            Show us your trading skills and discipline by taking on our 1 Step Fortune or Instant Funding challenges. Compete against fellow traders, hit your profit targets, and unlock up to $200k. Are you ready to prove you have what it takes to succeed?
           </p>
         </div>
         

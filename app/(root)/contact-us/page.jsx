@@ -47,7 +47,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-28">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-400 text-white py-20 px-4">
         <div className="max-w-7xl mx-auto text-center">

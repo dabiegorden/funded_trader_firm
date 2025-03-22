@@ -175,7 +175,7 @@ export default function FAQPage() {
   ];
 
   return (
-    <main className="min-h-screen bg-blue-50">
+    <main className="min-h-screen bg-blue-50 pt-28">
       <div className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 py-8">
         <div className="container mx-auto px-4">
           <h1 className="text-4xl font-bold text-white text-center">FortuneEdge</h1>

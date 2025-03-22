@@ -6,6 +6,8 @@ import React, { useState } from 'react'
 
 const Hero = () => {
   const [showBanner, setShowBanner] = useState(true);
+  // Calculate banner height for spacer (adjust value based on actual banner height)
+  const bannerHeight = showBanner ? "h-8" : "h-0"; // Typical banner height
 
   return (
     <main className="bg relative">
@@ -13,7 +15,7 @@ const Hero = () => {
       {showBanner && (
         <div 
           id="dev-banner"
-          className="w-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 text-white py-2 px-3 shadow-md"
+          className="w-full bg-gradient-to-r from-blue-800 via-blue-600 to-blue-800 text-white py-2 px-3 shadow-md fixed top-0 left-0 right-0 z-30"
           style={{ paddingTop: "env(safe-area-inset-top, 0)" }}
         >
           <div className="container mx-auto flex items-center justify-between">
@@ -35,10 +37,15 @@ const Hero = () => {
         </div>
       )}
       
-      {/* Navbar - NOT inside the banner */}
-      <Navbar />
+      {/* Navbar with adjusted top position */}
+      <div className={`${showBanner ? "top-8" : "top-0"} fixed left-0 right-0 z-20 transition-all duration-300`}>
+        <Navbar />
+      </div>
       
-      <main className="bg pt-28 pb-12 md:pt-40 px-4 md:px-8">
+      {/* Spacer div to account for fixed elements */}
+      <div className={`${bannerHeight} h-16 md:h-24`}></div>
+      
+      <div className="bg pt-12 pb-12 md:pt-16 px-4 md:px-8">
         <div className="flex flex-col items-center justify-center">
           <h1 className="text-3xl md:text-4xl lg:text-7xl bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-transparent bg-clip-text mb-6 md:mb-12 font-extrabold">
             Funding <span className="text-white">For All</span> Traders
@@ -74,9 +81,9 @@ const Hero = () => {
         <ContactForm />
         <TradeEliteBanner />
         <Footer />
-      </main>
+      </div>
     </main>
   )
 }
 
-export default Hero
+export default Hero;

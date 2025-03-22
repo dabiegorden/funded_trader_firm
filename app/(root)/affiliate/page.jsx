@@ -38,9 +38,9 @@ export default function AffiliatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-4">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white py-16 mt-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold mb-4">Earn With Our Affiliate Program</h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">Join our affiliate program and earn up to 15% commission on every successful referral. Start earning passive income today!</p>

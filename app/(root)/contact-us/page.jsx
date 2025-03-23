@@ -76,11 +76,10 @@ export default function ContactPage() {
             <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full flex items-center justify-center mb-4">
               <FaWhatsapp className="text-white" size={24} />
             </div>
-            <h3 className="text-xl font-bold mb-2">WhatsApp Us</h3>
             <p className="text-gray-600 mb-4">Mon-Fri, 9am-5pm (GMT)</p>
-            <a href="tel:+441234567890" className="text-blue-600 hover:underline">
-              {/* +44 123 456 7890 */}
-            </a>
+            <Link href="https://wa.me/message/PJXPW7Z7AH3QK1" className="text-blue-600 hover:underline">
+            <h3 className="text-xl font-bold mb-2">WhatsApp Us</h3>
+            </Link>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">

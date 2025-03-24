@@ -102,7 +102,7 @@ const Footer = () => {
                   <FiInstagram size={24} />
                 </Link>
                 <Link
-                  href="https://www.instagram.com/fortuneedgefunding?igsh=MWxuN2NuN2o4a2hsYw%3D%3D&utm_source=qr"
+                  href="https://wa.me/message/PJXPW7Z7AH3QK1"
                   className="hover:text-blue-500 transition-colors"
                 >
                   <FaWhatsapp size={24}/>

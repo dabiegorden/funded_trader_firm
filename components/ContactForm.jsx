@@ -48,8 +48,8 @@ const ContactForm = () => {
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-md flex items-center justify-center mr-4">
                   <Mail className="text-white" size={24} />
                 </div>
-                <a href="mailto:support@fortuneedgefunding.com" className="text-lg font-medium hover:text-blue-600 transition-colors">
-                  support@fortuneedgefunding.com
+                <a href="mailto:Support@myfortunesedge.com" className="text-lg font-medium hover:text-blue-600 transition-colors">
+                  Support@myfortunesedge.com
                 </a>
               </div>
               

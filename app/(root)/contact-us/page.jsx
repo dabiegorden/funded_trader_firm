@@ -186,9 +186,9 @@ export default function ContactPage() {
                   <div>
                     <p className="text-gray-500">Email</p>
                     <a href="mailto:Support@myfortunesedge.com" className="text-lg font-medium hover:text-blue-600 transition-colors">
-                      {activeTab === 'general' && 'support@fortuneedgefunding.com'}
+                      {activeTab === 'general' && 'Support@myfortunesedge.com'}
                       {activeTab === 'funding' && 'funding@fortuneedgefunding.com'}
-                      {activeTab === 'support' && 'techsupport@fortuneedgefunding.com'}
+                      {activeTab === 'support' && 'techSupport@myfortunesedge.com'}
                       {activeTab === 'billing' && 'billing@fortuneedgefunding.com'}
                     </a>
                   </div>

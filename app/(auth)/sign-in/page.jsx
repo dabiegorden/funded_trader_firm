@@ -1,104 +1,161 @@
-'use client';
+"use client"
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import { AlertCircle } from "lucide-react"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const router = useRouter();
+    username: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true)
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/getCurrentUser`,
+          {
+            credentials: "include",
+          },
+        )
+
+        if (response.ok) {
+          setIsAuthenticated(true)
+          router.push("/")
+        }
+      } catch (error) {
+        console.error("Auth check error:", error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    checkAuthStatus()
+  }, [router])
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors = {}
 
     // Username validation
     if (!formData.username) {
-      newErrors.username = 'Username is required';
+      newErrors.username = "Username is required"
     }
 
     // Password validation
     if (!formData.password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = "Password is required"
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prevState => ({
+    const { name, value } = e.target
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: value
-    }));
+      [name]: value,
+    }))
 
     // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prevErrors => ({
+      setErrors((prevErrors) => ({
         ...prevErrors,
-        [name]: ''
-      }));
+        [name]: "",
+      }))
     }
-  };
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
+    e.preventDefault()
+
     // Validate form
     if (!validateForm()) {
-      return;
+      return
     }
 
-    setIsSubmitting(true);
+    setIsSubmitting(true)
+    setErrors({})
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
-        method: 'POST',
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/login`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: formData.username,
-          password: formData.password
+          password: formData.password,
         }),
-        credentials: 'include'
-      });
+        credentials: "include",
+      })
 
-      const data = await response.json();
-
-      if (response.ok) {
-        // Redirect to homepage
-        router.push('/');
-      } else {
-        // Handle login errors
-        setErrors({
-          submit: data.message || 'Login failed'
-        });
+      if (!response.ok) {
+        const errorText = await response.text()
+        try {
+          // Try to parse as JSON
+          const errorData = JSON.parse(errorText)
+          setErrors({
+            submit: errorData.message || "Login failed",
+          })
+        } catch (e) {
+          // If not JSON, it's probably HTML
+          console.error("Server returned non-JSON response:", errorText)
+          setErrors({
+            submit: "Server error. Please try again later.",
+          })
+        }
+        return
       }
+
+      const data = await response.json()
+
+      // Store user info in localStorage for Navbar display
+      localStorage.setItem("user", JSON.stringify(data.user))
+
+      // Redirect to homepage
+      router.push("/")
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error)
       setErrors({
-        submit: 'An unexpected error occurred'
-      });
+        submit: "An unexpected error occurred. Please check the console for details.",
+      })
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
+
+  // If loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    )
+  }
+
+  // If already authenticated, don't show the login form
+  if (isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don't have an account?{" "}
             <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
               Create an account
             </Link>
@@ -119,13 +176,11 @@ export default function LoginPage() {
                 value={formData.username}
                 onChange={handleChange}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                  errors.username ? 'border-red-500' : 'border-gray-300'
+                  errors.username ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter your username"
               />
-              {errors.username && (
-                <p className="mt-1 text-sm text-red-500">{errors.username}</p>
-              )}
+              {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
             </div>
 
             {/* Password Input */}
@@ -141,13 +196,11 @@ export default function LoginPage() {
                 value={formData.password}
                 onChange={handleChange}
                 className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
+                  errors.password ? "border-red-500" : "border-gray-300"
                 }`}
                 placeholder="Enter your password"
               />
-              {errors.password && (
-                <p className="mt-1 text-sm text-red-500">{errors.password}</p>
-              )}
+              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
             </div>
           </div>
 
@@ -160,8 +213,14 @@ export default function LoginPage() {
 
           {/* Submit Error */}
           {errors.submit && (
-            <div className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              {errors.submit}
+            <div
+              className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              <div className="flex items-center justify-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                <span>{errors.submit}</span>
+              </div>
             </div>
           )}
 
@@ -172,11 +231,12 @@ export default function LoginPage() {
               disabled={isSubmitting}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 cursor-pointer"
             >
-              {isSubmitting ? 'Signing In...' : 'Sign In'}
+              {isSubmitting ? "Signing In..." : "Sign In"}
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }
+

@@ -135,7 +135,7 @@ export default function PricingPage() {
                 </div>
                 <div className="p-6 text-center">
                   <p className="text-3xl font-bold text-gray-900 mb-4">{plan.price}</p>
-                  <Link href={"#"} className="mt-8 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition-opacity duration-300 cursor-pointer">
+                  <Link href={"https://nowpayments.io/payment/?iid=6076640409"} className="mt-8 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition-opacity duration-300 cursor-pointer">
                     Get Started
                   </Link>
                 </div>
@@ -238,7 +238,7 @@ export default function PricingPage() {
               Get funded today and take your trading career to the next level
             </p>
             <div className="mt-8">
-              <Link href={"#pricing"} className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium text-lg shadow-md hover:bg-gray-100 transition-colors duration-300">
+              <Link href={"https://nowpayments.io/payment/?iid=6076640409"} className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium text-lg shadow-md hover:bg-gray-100 transition-colors duration-300">
                 Get Started Now
               </Link>
             </div>

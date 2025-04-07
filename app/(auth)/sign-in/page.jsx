@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { AlertCircle } from "lucide-react"
 
@@ -15,22 +15,22 @@ export default function LoginPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectPath = searchParams.get("redirect") || "/"
 
   // Check if user is already authenticated
   useEffect(() => {
     const checkAuthStatus = async () => {
       try {
         setIsLoading(true)
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/getCurrentUser`,
-          {
-            credentials: "include",
-          },
-        )
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+        const response = await fetch(`${apiUrl}/api/auth/getCurrentUser`, {
+          credentials: "include",
+        })
 
         if (response.ok) {
           setIsAuthenticated(true)
-          router.push("/")
+          router.push(redirectPath)
         }
       } catch (error) {
         console.error("Auth check error:", error)
@@ -40,7 +40,7 @@ export default function LoginPage() {
     }
 
     checkAuthStatus()
-  }, [router])
+  }, [router, redirectPath])
 
   const validateForm = () => {
     const newErrors = {}
@@ -87,7 +87,8 @@ export default function LoginPage() {
     setErrors({})
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/auth/login`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,8 +123,8 @@ export default function LoginPage() {
       // Store user info in localStorage for Navbar display
       localStorage.setItem("user", JSON.stringify(data.user))
 
-      // Redirect to homepage
-      router.push("/")
+      // Redirect to homepage or the redirect path
+      router.push(redirectPath)
     } catch (error) {
       console.error("Login error:", error)
       setErrors({

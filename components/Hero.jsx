@@ -1,6 +1,6 @@
 "use client"
 
-import { ContactForm, CustomGetFundedBtn, EquityEdgePayout, Footer, FundingOptionsSection, GetFunded, Navbar, ProveWorthySection, SubHeroSection, TelegramCommunityBenefits, TradeEliteBanner, TradingPlanSelector } from '@/constants'
+import { ContactForm, CustomGetFundedBtn, EquityEdgePayout, Footer, FundingOptionsSection, GetFunded, Navbar, ProveWorthySection, SubHeroSection, TelegramCommunityBenefits, TradeEliteBanner} from '@/constants'
 import Link from 'next/link'
 import React, { useState, useEffect } from 'react'
 import { ToastContainer, toast } from 'react-toastify'
@@ -81,7 +81,6 @@ const Hero = () => {
         <GetFunded />
         <CustomGetFundedBtn />
         <FundingOptionsSection />
-        <TradingPlanSelector />
         <EquityEdgePayout />
         <ProveWorthySection />
         <TelegramCommunityBenefits />

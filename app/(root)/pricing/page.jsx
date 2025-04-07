@@ -1,10 +1,32 @@
 "use client";
 
-import Link from 'next/link';
 import { useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+// This component would be imported from your constants file
+// For this example, I'm creating a simple version here
+const TradingPlanSelector = () => (
+  <div className="flex justify-center mt-8">
+    <div className="inline-flex rounded-md shadow-sm">
+      <a href="#pricing" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-l-lg hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
+        View Plans
+      </a>
+      <a href="#features" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border-t border-b border-blue-300 hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
+        Features
+      </a>
+      <a href="#faq" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-r-lg hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
+        FAQ
+      </a>
+    </div>
+  </div>
+);
 
 export default function PricingPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('1step');
+  const [activeCategory, setActiveCategory] = useState('synthetic');
+  const [selectedPlatform, setSelectedPlatform] = useState('mt5');
   
   const pricingData = {
     '1step': {
@@ -49,13 +71,56 @@ export default function PricingPage() {
     }
   };
 
-  const [activeCategory, setActiveCategory] = useState('synthetic');
+  // Function to handle challenge purchase
+  const handlePurchaseChallenge = async (plan) => {
+    try {
+      // Check if user is logged in
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+      const checkAuthResponse = await fetch(`${apiUrl}/api/auth/getCurrentUser`, {
+        credentials: 'include'
+      });
+      
+      if (!checkAuthResponse.ok) {
+        // User is not logged in, redirect to login page
+        router.push('/sign-in?redirect=/pricing');
+        return;
+      }
+      
+      // User is logged in, create challenge
+      const response = await fetch(`${apiUrl}/api/challenges`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: activeTab,
+          category: activeCategory,
+          accountSize: plan.account,
+          price: parseFloat(plan.price.replace('$', '')),
+          platform: selectedPlatform
+        }),
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        // Redirect to payment page
+        window.location.href = data.payment.paymentUrl;
+      } else {
+        console.error('Failed to create challenge:', data.message);
+        alert(`Failed to create challenge: ${data.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error creating challenge:', error);
+      alert('An unexpected error occurred. Please try again later.');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-12 pt-32 px-4 sm:px-6 lg:px-8" id='pricing'>
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="text-center">
+    <main>
+      {/* Header */}
+      <div className="text-center pt-38">
           <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
             Our Pricing Plans
           </h1>
@@ -63,7 +128,9 @@ export default function PricingPage() {
             Choose the right funding program that fits your trading style and goals
           </p>
         </div>
-
+        <TradingPlanSelector />
+        <div className="min-h-screen bg-gray-50 pb-12 pt-32 px-4 sm:px-6 lg:px-8" id='pricing'>
+      <div className="max-w-7xl mx-auto">
         {/* Program Type Selector */}
         <div className="mt-12 max-w-lg mx-auto flex rounded-md divide-x overflow-hidden">
           <button
@@ -111,6 +178,30 @@ export default function PricingPage() {
             Forex
           </button>
         </div>
+        
+        {/* Platform Selection */}
+        <div className="mt-6 max-w-lg mx-auto flex rounded-md divide-x overflow-hidden shadow-sm">
+          <button
+            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
+              selectedPlatform === 'mt4'
+                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+            onClick={() => setSelectedPlatform('mt4')}
+          >
+            MetaTrader 4
+          </button>
+          <button
+            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
+              selectedPlatform === 'mt5'
+                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+            onClick={() => setSelectedPlatform('mt5')}
+          >
+            MetaTrader 5
+          </button>
+        </div>
 
         {/* Program Details */}
         <div className="mt-10 max-w-7xl mx-auto">
@@ -135,9 +226,12 @@ export default function PricingPage() {
                 </div>
                 <div className="p-6 text-center">
                   <p className="text-3xl font-bold text-gray-900 mb-4">{plan.price}</p>
-                  <Link href={"https://nowpayments.io/payment/?iid=6076640409"} className="mt-8 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition-opacity duration-300 cursor-pointer">
+                  <button 
+                    onClick={() => handlePurchaseChallenge(plan)}
+                    className="mt-8 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition-opacity duration-300 cursor-pointer"
+                  >
                     Get Started
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}
@@ -145,7 +239,7 @@ export default function PricingPage() {
         </div>
 
         {/* Features Section */}
-        <div className="mt-20 max-w-4xl mx-auto">
+        <div className="mt-20 max-w-4xl mx-auto" id="features">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Why Choose Our Programs</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -182,7 +276,7 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-20 max-w-3xl mx-auto">
+        <div className="mt-20 max-w-3xl mx-auto" id="faq">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Frequently Asked Questions</h2>
           
           <div className="space-y-4">
@@ -238,13 +332,17 @@ export default function PricingPage() {
               Get funded today and take your trading career to the next level
             </p>
             <div className="mt-8">
-              <Link href={"https://nowpayments.io/payment/?iid=6076640409"} className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium text-lg shadow-md hover:bg-gray-100 transition-colors duration-300">
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium text-lg shadow-md hover:bg-gray-100 transition-colors duration-300"
+              >
                 Get Started Now
-              </Link>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
+    </main>
   );
 }

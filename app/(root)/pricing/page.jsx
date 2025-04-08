@@ -1,348 +1,235 @@
-"use client";
+"use client"
 
-import { useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
+import { AlertCircle } from "lucide-react"
 
-// This component would be imported from your constants file
-// For this example, I'm creating a simple version here
-const TradingPlanSelector = () => (
-  <div className="flex justify-center mt-8">
-    <div className="inline-flex rounded-md shadow-sm">
-      <a href="#pricing" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-l-lg hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
-        View Plans
-      </a>
-      <a href="#features" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border-t border-b border-blue-300 hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
-        Features
-      </a>
-      <a href="#faq" className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-r-lg hover:bg-blue-50 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700">
-        FAQ
-      </a>
-    </div>
-  </div>
-);
+export default function LoginPage() {
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  })
+  const [errors, setErrors] = useState({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectPath = searchParams.get("redirect") || "/"
 
-export default function PricingPage() {
-  const router = useRouter();
-  const [activeTab, setActiveTab] = useState('1step');
-  const [activeCategory, setActiveCategory] = useState('synthetic');
-  const [selectedPlatform, setSelectedPlatform] = useState('mt5');
-  
-  const pricingData = {
-    '1step': {
-      title: '1 Step Fortune',
-      description: 'Get funded in one step with our 1 Step Fortune program',
-      synthetic: [
-        { account: '$5K', price: '$75' },
-        { account: '$10K', price: '$130' },
-        { account: '$25K', price: '$240' },
-        { account: '$50K', price: '$440' },
-        { account: '$100K', price: '$845' },
-        { account: '$200K', price: '$1650' },
-      ],
-      forex: [
-        { account: '$5K', price: '$32' },
-        { account: '$10K', price: '$60' },
-        { account: '$25K', price: '$130' },
-        { account: '$50K', price: '$250' },
-        { account: '$100K', price: '$495' },
-        { account: '$200K', price: '$950' },
-      ]
-    },
-    'instant': {
-      title: 'Instant Funding',
-      description: 'Get funded instantly with our Instant Funding program',
-      synthetic: [
-        { account: '$5K', price: '$110' },
-        { account: '$10K', price: '$215' },
-        { account: '$25K', price: '$325' },
-        { account: '$50K', price: '$600' },
-        { account: '$100K', price: '$1100' },
-        { account: '$200K', price: '$2050' },
-      ],
-      forex: [
-        { account: '$5K', price: '$75' },
-        { account: '$10K', price: '$120' },
-        { account: '$25K', price: '$270' },
-        { account: '$50K', price: '$390' },
-        { account: '$100K', price: '$590' },
-        { account: '$200K', price: '$990' },
-      ]
-    }
-  };
+  // Check if user is already authenticated
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        setIsLoading(true)
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+        const response = await fetch(`${apiUrl}/api/auth/getCurrentUser`, {
+          credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
+        })
 
-  // Function to handle challenge purchase
-  const handlePurchaseChallenge = async (plan) => {
-    try {
-      // Check if user is logged in
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-      const checkAuthResponse = await fetch(`${apiUrl}/api/auth/getCurrentUser`, {
-        credentials: 'include'
-      });
-      
-      if (!checkAuthResponse.ok) {
-        // User is not logged in, redirect to login page
-        router.push('/sign-in?redirect=/pricing');
-        return;
+        if (response.ok) {
+          setIsAuthenticated(true)
+          router.push(redirectPath)
+        }
+      } catch (error) {
+        console.error("Auth check error:", error)
+      } finally {
+        setIsLoading(false)
       }
-      
-      // User is logged in, create challenge
-      const response = await fetch(`${apiUrl}/api/challenges`, {
-        method: 'POST',
+    }
+
+    checkAuthStatus()
+  }, [router, redirectPath])
+
+  const validateForm = () => {
+    const newErrors = {}
+
+    // Username validation
+    if (!formData.username) {
+      newErrors.username = "Username is required"
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }))
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "",
+      }))
+    }
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    // Validate form
+    if (!validateForm()) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrors({})
+
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
+          Accept: "application/json",
         },
         body: JSON.stringify({
-          type: activeTab,
-          category: activeCategory,
-          accountSize: plan.account,
-          price: parseFloat(plan.price.replace('$', '')),
-          platform: selectedPlatform
+          username: formData.username,
+          password: formData.password,
         }),
-        credentials: 'include'
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok) {
-        // Redirect to payment page
-        window.location.href = data.payment.paymentUrl;
-      } else {
-        console.error('Failed to create challenge:', data.message);
-        alert(`Failed to create challenge: ${data.message || 'Unknown error'}`);
+        credentials: "include",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setErrors({
+          submit: data.message || "Login failed",
+        })
+        return
       }
+
+      // Store user info in localStorage for Navbar display
+      localStorage.setItem("user", JSON.stringify(data.user))
+
+      // Redirect to homepage or the redirect path
+      router.push(redirectPath)
     } catch (error) {
-      console.error('Error creating challenge:', error);
-      alert('An unexpected error occurred. Please try again later.');
+      console.error("Login error:", error)
+      setErrors({
+        submit: "An unexpected error occurred. Please try again later.",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
-  };
+  }
+
+  // If loading, show loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+        <span className="ml-2">Loading...</span>
+      </div>
+    )
+  }
+
+  // If already authenticated, don't show the login form
+  if (isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>
+  }
 
   return (
-    <main>
-      {/* Header */}
-      <div className="text-center pt-38">
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl sm:tracking-tight lg:text-6xl">
-            Our Pricing Plans
-          </h1>
-          <p className="mt-5 max-w-xl mx-auto text-xl text-gray-500">
-            Choose the right funding program that fits your trading style and goals
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Don't have an account?{" "}
+            <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
+              Create an account
+            </Link>
           </p>
         </div>
-        <TradingPlanSelector />
-        <div className="min-h-screen bg-gray-50 pb-12 pt-32 px-4 sm:px-6 lg:px-8" id='pricing'>
-      <div className="max-w-7xl mx-auto">
-        {/* Program Type Selector */}
-        <div className="mt-12 max-w-lg mx-auto flex rounded-md divide-x overflow-hidden">
-          <button
-            className={`w-1/2 py-4 px-6 text-lg font-medium cursor-pointer ${
-              activeTab === '1step'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setActiveTab('1step')}
-          >
-            1 Step Fortune
-          </button>
-          <button
-            className={`w-1/2 py-4 px-6 text-lg font-medium cursor-pointer ${
-              activeTab === 'instant'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setActiveTab('instant')}
-          >
-            Instant Funding
-          </button>
-        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="rounded-md shadow-sm -space-y-px">
+            {/* Username Input */}
+            <div className="mb-4">
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                required
+                value={formData.username}
+                onChange={handleChange}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                  errors.username ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Enter your username"
+              />
+              {errors.username && <p className="mt-1 text-sm text-red-500">{errors.username}</p>}
+            </div>
 
-        {/* Category Selection */}
-        <div className="mt-6 max-w-lg mx-auto flex rounded-md divide-x overflow-hidden shadow-sm">
-          <button
-            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
-              activeCategory === 'synthetic'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setActiveCategory('synthetic')}
-          >
-            Synthetic Indices
-          </button>
-          <button
-            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
-              activeCategory === 'forex'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setActiveCategory('forex')}
-          >
-            Forex
-          </button>
-        </div>
-        
-        {/* Platform Selection */}
-        <div className="mt-6 max-w-lg mx-auto flex rounded-md divide-x overflow-hidden shadow-sm">
-          <button
-            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
-              selectedPlatform === 'mt4'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setSelectedPlatform('mt4')}
-          >
-            MetaTrader 4
-          </button>
-          <button
-            className={`w-1/2 py-3 px-6 text-base font-medium cursor-pointer ${
-              selectedPlatform === 'mt5'
-                ? 'bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-            onClick={() => setSelectedPlatform('mt5')}
-          >
-            MetaTrader 5
-          </button>
-        </div>
-
-        {/* Program Details */}
-        <div className="mt-10 max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">
-              {pricingData[activeTab].title}
-            </h2>
-            <p className="mt-2 text-lg text-gray-500">
-              {pricingData[activeTab].description}
-            </p>
+            {/* Password Input */}
+            <div className="mb-4">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                className={`mt-1 block w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
+                  errors.password ? "border-red-500" : "border-gray-300"
+                }`}
+                placeholder="Enter your password"
+              />
+              {errors.password && <p className="mt-1 text-sm text-red-500">{errors.password}</p>}
+            </div>
           </div>
 
-          {/* Pricing Cards */}
-          <div className="mt-10 grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6">
-            {pricingData[activeTab][activeCategory].map((plan, index) => (
-              <div 
-                key={index} 
-                className="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 hover:shadow-xl"
-              >
-                <div className="bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 px-4 py-6 text-center">
-                  <p className="text-white text-xl font-bold">{plan.account}</p>
-                </div>
-                <div className="p-6 text-center">
-                  <p className="text-3xl font-bold text-gray-900 mb-4">{plan.price}</p>
-                  <button 
-                    onClick={() => handlePurchaseChallenge(plan)}
-                    className="mt-8 w-full bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 text-white px-4 py-2 rounded-md shadow hover:opacity-90 transition-opacity duration-300 cursor-pointer"
-                  >
-                    Get Started
-                  </button>
-                </div>
+          {/* Forgot Password Link */}
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              Forgot password?
+            </Link>
+          </div>
+
+          {/* Submit Error */}
+          {errors.submit && (
+            <div
+              className="text-center bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
+            >
+              <div className="flex items-center justify-center">
+                <AlertCircle className="h-5 w-5 mr-2" />
+                <span>{errors.submit}</span>
               </div>
-            ))}
-          </div>
-        </div>
+            </div>
+          )}
 
-        {/* Features Section */}
-        <div className="mt-20 max-w-4xl mx-auto" id="features">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Why Choose Our Programs</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full flex items-center justify-center text-white mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Quick Funding</h3>
-              <p className="text-gray-600">Get funded quickly and start trading with our streamlined application process.</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full flex items-center justify-center text-white mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Multiple Options</h3>
-              <p className="text-gray-600">Choose from various account sizes and instrument types to match your trading preferences.</p>
-            </div>
-            
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-full flex items-center justify-center text-white mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Competitive Pricing</h3>
-              <p className="text-gray-600">Our transparent pricing structure ensures you get the best value for your investment.</p>
-            </div>
+          {/* Submit Button */}
+          <div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 cursor-pointer"
+            >
+              {isSubmitting ? "Signing In..." : "Sign In"}
+            </button>
           </div>
-        </div>
-
-        {/* FAQ Section */}
-        <div className="mt-20 max-w-3xl mx-auto" id="faq">
-          <h2 className="text-2xl font-bold text-gray-900 text-center mb-8">Frequently Asked Questions</h2>
-          
-          <div className="space-y-4">
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <button className="w-full text-left p-4 focus:outline-none cursor-pointer">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium text-gray-900">What's the difference between the programs?</h3>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="mt-2 text-gray-600">
-                  1 Step Fortune offers a simplified evaluation process, while Instant Funding provides immediate access to trading funds without evaluation.
-                </div>
-              </button>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <button className="w-full text-left p-4 focus:outline-none cursor-pointer">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium text-gray-900">What are Synthetic Indices?</h3>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="mt-2 text-gray-600">
-                  Synthetic Indices are simulated markets that mimic real-world financial markets but operate 24/7 and are driven by a transparent random number generator.
-                </div>
-              </button>
-            </div>
-            
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <button className="w-full text-left p-4 focus:outline-none cursor-pointer">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-medium text-gray-900">How do I get started?</h3>
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-                <div className="mt-2 text-gray-600">
-                  Simply select your preferred program, account size, and instrument type, then click the "Get Started" button to begin the application process.
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* CTA Section */}
-        <div className="mt-20 bg-gradient-to-r from-blue-700 via-blue-500 to-blue-300 rounded-lg shadow-xl">
-          <div className="max-w-4xl mx-auto px-6 py-12 text-center">
-            <h2 className="text-3xl font-bold text-white">Ready to Start Trading?</h2>
-            <p className="mt-4 text-xl text-white opacity-90">
-              Get funded today and take your trading career to the next level
-            </p>
-            <div className="mt-8">
-              <button 
-                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                className="bg-white text-blue-600 px-8 py-3 rounded-md font-medium text-lg shadow-md hover:bg-gray-100 transition-colors duration-300"
-              >
-                Get Started Now
-              </button>
-            </div>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
-    </main>
-  );
+  )
 }

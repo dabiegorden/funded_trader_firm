@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { Menu, X, User, LogOut, Settings } from "lucide-react"
 import { useRouter, usePathname } from "next/navigation"
@@ -36,6 +36,7 @@ const Navbar = () => {
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
   const [imageError, setImageError] = useState(false)
+  const dropdownRef = useRef(null)
   const router = useRouter()
   const pathname = usePathname()
   const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"
@@ -47,6 +48,9 @@ const Navbar = () => {
         setIsLoading(true)
         const response = await fetch(`${apiBaseUrl}/api/auth/getCurrentUser`, {
           credentials: "include",
+          headers: {
+            Accept: "application/json",
+          },
         })
 
         if (!response.ok) {
@@ -83,19 +87,21 @@ const Navbar = () => {
     }
 
     fetchUserInfo()
+  }, [apiBaseUrl, pathname])
 
-    // Close dropdown when clicking outside
-    const handleClickOutside = (event) => {
-      if (isProfileDropdownOpen) {
+  // Handle clicks outside the dropdown
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsProfileDropdownOpen(false)
       }
     }
 
-    document.addEventListener("click", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside)
     return () => {
-      document.removeEventListener("click", handleClickOutside)
+      document.removeEventListener("mousedown", handleClickOutside)
     }
-  }, [apiBaseUrl, pathname, isProfileDropdownOpen])
+  }, [])
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen)
@@ -107,6 +113,9 @@ const Navbar = () => {
       const response = await fetch(`${apiBaseUrl}/api/auth/logout`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          Accept: "application/json",
+        },
       })
 
       // Clear local storage
@@ -205,7 +214,7 @@ const Navbar = () => {
         <div className="hidden md:flex gap-4 items-center relative">
           {!isLoading &&
             (user ? (
-              <div className="relative" onClick={(e) => e.stopPropagation()}>
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={toggleProfileDropdown}
                   className="flex items-center gap-4 text-slate-50 hover:bg-blue-600 py-2 px-4 rounded-full cursor-pointer"
@@ -343,4 +352,3 @@ const Navbar = () => {
 }
 
 export default Navbar
-
